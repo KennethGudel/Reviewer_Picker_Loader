@@ -10,7 +10,7 @@ Loads metacritic reviewer data into ElasticSearch
 
 - Install ElasticSearch
 
-- Run `./index.py`
+- Run `python index.py`
 
 
 
