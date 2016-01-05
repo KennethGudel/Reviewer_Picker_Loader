@@ -1,7 +1,7 @@
 import requests
 import string
 from HTMLParser import HTMLParser
-import elasticsearch
+import sets as s
 
 header = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:32.0) Gecko/20100101 Firefox/32.0',}
 movies = []
@@ -55,4 +55,4 @@ def get_movie_list():
 			page = s.get(url_page, headers=header)
 			get_movies(page.text)
 			number += 1
-	return movies
+	return s.set(movies)
