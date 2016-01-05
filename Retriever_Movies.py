@@ -1,16 +1,17 @@
-from urllib import FancyURLopener
+import requests
 import string
 from HTMLParser import HTMLParser
 import elasticsearch
 
-#
-class MyOpener(FancyURLopener):
-	version = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; it; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11'
-myopener = MyOpener()
+header = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:32.0) Gecko/20100101 Firefox/32.0',}
+movies = []
+forward = []
 
 # create a subclass and override the handler methods
 class MyHTMLParser(HTMLParser):
     def handle_starttag(self, tag, attrs):
+		global movies
+		global forward
         # Only parse the 'anchor' tag.
 		if tag == "a":
            # Check the list of defined attributes.
@@ -30,32 +31,28 @@ parser = MyHTMLParser()
 def get_movies(html):
 	parser.feed(html)
 
-def get_movie_list(letters, base, page_base):
+def get_movie_list():
+	global movies 
+	global forward
+	movies = []
+	forward = []
+	base = 'http://www.metacritic.com/browse/movies/title/dvd'
+	page_base = '?page='
+	letters = [letter for letter in string.ascii_lowercase]
+	letters.append('')
+	letters = ['']
+	s = requests.session()
 	for letter in letters:
 		print letter
 		forward.append(False)
 		url = base + '/' + letter
-		page = myopener.open(url)
-		get_movies(page.read())
+		page = s.get(url, headers=header)
+		get_movies(page.text)
 		number = 1
 		while forward[-1] == False:
 			print number
 			url_page = url + page_base + str(number)
-			page = myopener.open(url_page)
-			get_movies(page.read())
+			page = s.get(url_page, headers=header)
+			get_movies(page.text)
 			number += 1
-	return set(movies)
-
-movies = []
-forward = []
-
-base = 'http://www.metacritic.com/browse/movies/title/dvd'
-page_base = '?page='
-
-
-letters = [letter for letter in string.ascii_lowercase]
-letters.append('')
-
-get_movie_list(letters, base, page_base)
-
-print len(movies)
+	return movies
